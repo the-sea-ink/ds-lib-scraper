@@ -1,0 +1,2 @@
+short_title,title,description
+whiten,scipy.cluster.vq.whiten,Normalize a group of observations on a per feature basis.
