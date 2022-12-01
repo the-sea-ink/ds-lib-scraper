@@ -8,7 +8,7 @@ class ScipySpider(scrapy.Spider):
         'https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.vq.whiten.html'
 
     ]
-    f = open("bar.json", 'w').close()
+    f = open("items.csv", 'w').close()
 
     def parse(self, response):
         info = yield {
