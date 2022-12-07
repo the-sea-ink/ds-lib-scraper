@@ -1,19 +1,22 @@
+from io import StringIO
+from lxml import etree
+
 import scrapy
 from scrapy.crawler import CrawlerProcess
 
 
 class NoneFilter:
-
     def __init__(self, feed_options):
         self.feed_options = feed_options
 
     def accepts(self, item):
-        if len(item["description"]) == 0 and len(item("parameters")) == 0:
+        if len(item["description"]) == 0:
             return False
         return True
 
 
 class PandasSpider(scrapy.Spider):
+    parser = etree.HTMLParser()
     name = "pandas"
     start_urls = [
         'https://pandas.pydata.org/docs/reference/index.html'
@@ -45,34 +48,25 @@ class PandasSpider(scrapy.Spider):
             '//table[@class="autosummary longtable table autosummary"]/tbody/tr/td/p/a[@class="reference internal"]/@title').getall()
         for name in names:
             url = "https://pandas.pydata.org/docs/reference/api/" + name + ".html"
+            #if url == 'https://pandas.pydata.org/docs/reference/api/pandas.io.json.build_table_schema.html':
             yield scrapy.Request(url, callback=self.parse_data)
 
     def parse_data(self, response):
-        # shorten description to just one sentence
-        description = "".join(response.xpath('//dl[@class="py function" or @class="py method" or @class="py exception"]//dd//p/descendant-or-self::*/text()').getall())
-        index = description.find(".")
-        modified_description = description[:index+1]
-
-        # put parameters together
-        params = response.xpath('//em[@class="sig-param"]//span[@class="pre"]/text()').getall()
+        # put separated parameters together
+        html_params = response.xpath('//em[@class="sig-param"]').getall()
         edited_params = []
-        to_skip = ["*", "**", "args", "kwargs", "="]
-        for prev_param, param, next_param in zip(params, params[1:], params[2:]):
-            if param == "=":
-                edited_params.append(str(prev_param) + str(param) + str(next_param))
-            elif param == "*" and next_param == "args":
-                edited_params.append(str(param) + str(next_param))
-            elif param == "**" and next_param == "kwargs":
-                edited_params.append(str(param) + str(next_param))
-            elif prev_param or next_param in to_skip:
-                continue
-            else:
-                edited_params.append(param)
+        for separated_html_params in html_params:
+            parsed_elem = etree.parse(StringIO(separated_html_params), self.parser)
+            elem_parts = parsed_elem.xpath("//text()")
+            param = ""
+            for param_part in elem_parts:
+                param = param + param_part
+            edited_params.append(param)
 
 
         yield {
             "title": response.xpath('//dt[@class="sig sig-object py"]/@id').get(),
-            "description": modified_description,
+            "description": "".join(response.xpath('(//dl[@class="py function" or @class="py method" or @class="py exception"]//dd//p)[1]/descendant-or-self::*/text()').getall()),
             "link": response.request.url,
             "parameters": edited_params
         }
@@ -81,6 +75,7 @@ class PandasSpider(scrapy.Spider):
 process = CrawlerProcess()
 process.crawl(PandasSpider)
 process.start()
+
 
 
 
