@@ -8,7 +8,7 @@ class NoneFilter:
         self.feed_options = feed_options
 
     def accepts(self, item):
-        if len(item["description"]) == 0:
+        if len(item["description"]) == 0 and len(item("parameters")) == 0:
             return False
         return True
 
