@@ -10,8 +10,8 @@ class NoneFilter:
         self.feed_options = feed_options
 
     def accepts(self, item):
-        if len(item["description"]) == 0:
-            return False
+        #if len(item["description"]) == 0:
+            #return False
         return True
 
 
@@ -26,7 +26,7 @@ class PandasSpider(scrapy.Spider):
         "DOWNLOAD_DELAY": 1,
         "COOKIES_ENABLED": False,
         "FEEDS": {
-            "items.csv": {
+            "pandas.csv": {
                 "format": "csv",
                 "item_filter": NoneFilter
             },
@@ -34,7 +34,7 @@ class PandasSpider(scrapy.Spider):
         }
     }
 
-    f = open("items.csv", 'w').close()
+    f = open("pandas.csv", 'w').close()
 
     def parse(self, response):
         links = response.xpath(
@@ -62,7 +62,6 @@ class PandasSpider(scrapy.Spider):
             for param_part in elem_parts:
                 param = param + param_part
             edited_params.append(param)
-
 
         yield {
             "title": response.xpath('//dt[@class="sig sig-object py"]/@id').get(),
