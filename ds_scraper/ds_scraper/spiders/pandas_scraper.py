@@ -60,6 +60,7 @@ class PandasSpider(scrapy.Spider):
             elem_parts = parsed_elem.xpath("//text()")
             param = ""
             for param_part in elem_parts:
+                param_part = param_part.replace(",", "﹐")
                 param = param + param_part
             edited_params.append(param)
 
