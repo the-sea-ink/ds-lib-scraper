@@ -9,11 +9,6 @@ class NoneFilter:
     def __init__(self, feed_options):
         self.feed_options = feed_options
 
-    def accepts(self, item):
-        #if len(item["description"]) == 0:
-            #return False
-        return True
-
 
 class PandasSpider(scrapy.Spider):
     parser = etree.HTMLParser()
@@ -23,7 +18,7 @@ class PandasSpider(scrapy.Spider):
 
     ]
     custom_settings = {
-        "DOWNLOAD_DELAY": 1,
+        "DOWNLOAD_DELAY": 2,
         "COOKIES_ENABLED": False,
         "FEEDS": {
             "pandas.csv": {

@@ -9,11 +9,6 @@ class NoneFilter:
     def __init__(self, feed_options):
         self.feed_options = feed_options
 
-    def accepts(self, item):
-        #if len(item["description"]) == 0:
-            #return False
-        return True
-
 
 class SklearnScraper(scrapy.Spider):
     parser = etree.HTMLParser()
@@ -24,7 +19,7 @@ class SklearnScraper(scrapy.Spider):
 
     ]
     custom_settings = {
-        "DOWNLOAD_DELAY": 1,
+        "DOWNLOAD_DELAY": 2,
         "COOKIES_ENABLED": False,
         "FEEDS": {
             "sklearn.csv": {
